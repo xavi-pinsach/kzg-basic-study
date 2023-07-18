@@ -1,14 +1,12 @@
 {
     "name": "grand-sums-study",
     "version": "0.0.1",
-    "description": "A study about grand-sums proposed by Hector Masip / Polygon zkEvm",
+    "description": "A study about KZG commitment scheme",
     "main": "index.js",
     "scripts": {
         "test": "mocha"
     },
     "keywords": [
-        "grand-sums",
-        "zkEvm",
         "zk",
         "zero",
         "knowledge",
