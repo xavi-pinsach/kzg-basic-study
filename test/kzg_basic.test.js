@@ -1,6 +1,9 @@
 const assert = require("assert");
 const { getCurveFromName } = require("ffjavascript");
-const { getRandomPolynomialByLength, getRandomValue } = require("./test.utils.js");
+const {
+    getRandomValue,
+    getRandomBuffer,
+} = require("./test.utils.js");
 const path = require("path");
 
 const kzg_basic_prover = require("../src/kzg_basic_prover.js");
@@ -24,31 +27,41 @@ describe("grand-sums-study: KZG basic (1 polynomial) test", function () {
     });
 
     it("should perform a ZKG full proving & verifying process with ONE polynomial", async () => {
-        const degree =  getRandomValue(10);
-        const pol = getRandomPolynomialByLength(degree, curve);
+        const degree = getRandomValue(10);
+        const evals = getRandomBuffer(2 ** degree, curve);
 
-        const pTauFilename = path.join("tmp", "powersOfTau28_hez_final_15.ptau");
-        const proof = await kzg_basic_prover([pol], pTauFilename, { logger });
+        const pTauFilename = path.join(
+            "tmp",
+            "powersOfTau28_hez_final_15.ptau"
+        );
+        const proof = await kzg_basic_prover([evals], pTauFilename, { logger });
 
-        const isValid = await kzg_basic_verifier(proof, pTauFilename, { logger });
+        const isValid = await kzg_basic_verifier(proof, pTauFilename, {
+            logger,
+        });
         assert.ok(isValid);
     });
 
     it("should perform a basic ZKG full proving & verifying process with multiple polynomials", async () => {
         // Get a random number of polynomials to be committed between 2 and 5
         const nPols = getRandomValue(10);
-        const degree =  getRandomValue(10);
+        const degree = getRandomValue(10);
 
-        const pols = []
+        const evals = [];
 
-        for (let i=0; i<nPols; i++) {
-            pols[i] = getRandomPolynomialByLength(degree, curve);
+        for (let i = 0; i < nPols; i++) {
+            evals[i] = getRandomBuffer(2 ** degree, curve);
         }
 
-        const pTauFilename = path.join("tmp", "powersOfTau28_hez_final_15.ptau");
-        const proof = await kzg_basic_prover(pols, pTauFilename, { logger });
+        const pTauFilename = path.join(
+            "tmp",
+            "powersOfTau28_hez_final_15.ptau"
+        );
+        const proof = await kzg_basic_prover(evals, pTauFilename, { logger });
 
-        const isValid = await kzg_basic_verifier(proof, pTauFilename, { logger });
+        const isValid = await kzg_basic_verifier(proof, pTauFilename, {
+            logger,
+        });
         assert.ok(isValid);
     });
 });

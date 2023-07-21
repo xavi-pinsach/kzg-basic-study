@@ -4,7 +4,7 @@ const { Keccak256Transcript } = require("./Keccak256Transcript");
 const { Polynomial } = require("./polynomial/polynomial");
 const readPTauHeader = require("./ptau_utils");
 
-module.exports = async function kzg_basic_prover(pols, pTauFilename, options) {
+module.exports = async function kzg_basic_prover(evalsBufferArray, pTauFilename, options) {
     const logger = options.logger;
 
     if (logger) {
@@ -12,14 +12,17 @@ module.exports = async function kzg_basic_prover(pols, pTauFilename, options) {
         logger.info("");
     }
 
-    // STEP 0. Get the settings and prepare the setup
+    const { fd: fdPTau, sections: pTauSections } = await readBinFile(pTauFilename, "ptau", 1, 1 << 22, 1 << 24);
+    const { curve, power: nBitsPTau } = await readPTauHeader(fdPTau, pTauSections);
+
+    // STEP 0. Get the settings and prepare the setup    
+
     // Ensure all polynomials have the same length
-    const polLen = pols[0].length();
-    for (let i = 1; i < pols.length; i++) {
-        if (polLen !== pols[i].length()) {
-            throw new Error("All polynomials must have the same length.");
-        }
+    let polLen = 0;
+    for (let i = 0; i < evalsBufferArray.length; i++) {
+        polLen = Math.max(polLen, evalsBufferArray[i].byteLength);
     }
+    polLen /= curve.Fr.n8;
     
     const nBits = Math.ceil(Math.log2(polLen));
     const domainSize = 2 ** nBits;
@@ -29,8 +32,6 @@ module.exports = async function kzg_basic_prover(pols, pTauFilename, options) {
         throw new Error("Polynomial length must be power of two.");
     }
 
-    const { fd: fdPTau, sections: pTauSections } = await readBinFile(pTauFilename, "ptau", 1, 1 << 22, 1 << 24);
-    const { curve, power: nBitsPTau } = await readPTauHeader(fdPTau, pTauSections);
 
     // Ensure the powers of Tau file is sufficiently large
     if (nBitsPTau < nBits) {
@@ -46,12 +47,23 @@ module.exports = async function kzg_basic_prover(pols, pTauFilename, options) {
         logger.info("-------------------------------");
         logger.info("  KZG BASIC PROVER SETTINGS");
         logger.info(`  Curve:        ${curve.name}`);
-        logger.info(`  #polynomials: ${pols.length}`);
+        logger.info(`  #polynomials: ${evalsBufferArray.length}`);
         logger.info("-------------------------------");
     }
 
     let proof = {};
     let challenges = {};
+
+    // STEP 0. Get the settings and prepare the setup    
+    // Ensure all polynomials have the same length
+    const pols = [];
+    for (let i = 0; i < evalsBufferArray.length; i++) {
+        // Convert the evaluations to Montgomery form
+        const evals = await curve.Fr.batchToMontgomery(evalsBufferArray[i]);
+    
+        // Get the polynomials from the evaluations
+        pols[i] = await Polynomial.fromEvaluations(evals, curve, logger);
+    }
 
     // STEP 1. Generate the polynomial commitments of all polynomials
     logger.info("> STEP 1. Compute polynomial commitments");
