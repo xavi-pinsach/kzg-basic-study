@@ -32,7 +32,7 @@ describe("grand-sums-study: KZG basic (1 polynomial) test", function () {
 
         const pTauFilename = path.join(
             "tmp",
-            "powersOfTau28_hez_final_15.ptau"
+            "powersOfTau28_hez_final_11.ptau"
         );
         const proof = await kzg_basic_prover([evals], pTauFilename, { logger });
 
@@ -55,7 +55,7 @@ describe("grand-sums-study: KZG basic (1 polynomial) test", function () {
 
         const pTauFilename = path.join(
             "tmp",
-            "powersOfTau28_hez_final_15.ptau"
+            "powersOfTau28_hez_final_11.ptau"
         );
         const proof = await kzg_basic_prover(evals, pTauFilename, { logger });
 
