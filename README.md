@@ -1,4 +1,5 @@
 # Basic KZG Study
+[![Test](https://github.com/xavi-pinsach/kzg-basic-study/workflows/test/badge.svg)](https://github.com/xavi-pinsach/kzg-basic-study/actions?query=workflow%3ATest)
 
 This repository is a simople study about KZG polynomial commiment sceheme.
 
