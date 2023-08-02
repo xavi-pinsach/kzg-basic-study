@@ -11,3 +11,6 @@ Please note that this repository is intended for study and experimental purposes
 
 This study is released under the [MIT License](LICENSE). Please review the license file for more details.
 
+## Usage
+
+Before running the tests, you need to create a `tmp` folder in the root of the repository. Then, you need to download the `powersOfTau28_hez_final_11.ptau` file from [this link](https://github.com/iden3/snarkjs#7-prepare-phase-2) and place it in the `tmp` folder.
