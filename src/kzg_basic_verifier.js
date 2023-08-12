@@ -5,10 +5,7 @@ const readPTauHeader = require("./ptau_utils");
 module.exports = async function kzg_basic_verifier(proof, pTauFilename, options) {
     const logger = options.logger;
 
-    if (logger) {
-        logger.info("> KZG BASIC VERIFIER STARTED");
-        logger.info("");
-    }
+    if (logger) logger.info("> KZG BASIC VERIFIER STARTED");
 
     const { fd: fdPTau, sections: pTauSections } = await readBinFile(pTauFilename, "ptau", 1, 1 << 22, 1 << 24);
     const { curve } = await readPTauHeader(fdPTau, pTauSections);
@@ -31,7 +28,7 @@ module.exports = async function kzg_basic_verifier(proof, pTauFilename, options)
         transcript.addPolCommitment(proof.commitments[i]);
     }
     challenges.xi = transcript.getChallenge();
-    logger.info("··· xi = ", curve.Fr.toString(challenges.xi));
+    logger.info("··· xi =", curve.Fr.toString(challenges.xi));
 
     // STEP 2. Calculate challenge alpha from transcript
     logger.info("> STEP 2. Compute challenge alpha");
@@ -40,7 +37,7 @@ module.exports = async function kzg_basic_verifier(proof, pTauFilename, options)
         transcript.addEvaluation(proof.evaluations[i]);
     }
     challenges.alpha = transcript.getChallenge();
-    logger.info("··· alpha = ", curve.Fr.toString(challenges.alpha));
+    logger.info("··· alpha =", curve.Fr.toString(challenges.alpha));
     
     // STEP 3. Compute [F]_1
     let currentAlpha = curve.Fr.one;
@@ -82,10 +79,7 @@ module.exports = async function kzg_basic_verifier(proof, pTauFilename, options)
         }
     }
 
-    if (logger) {
-        logger.info("");
-        logger.info("> KZG BASIC VERIFIER FINISHED");
-    }
+    if (logger) logger.info("");
 
     await fdPTau.close();
 
